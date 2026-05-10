@@ -6,6 +6,7 @@ namespace MimicSpace
 {
     public class Mimic : MonoBehaviour
     {
+        
         [Header("Animation")]
         public GameObject legPrefab;
 
@@ -54,6 +55,7 @@ namespace MimicSpace
         public Vector3 velocity;
 
         void Start()
+            
         {
             ResetMimic();
         }
@@ -91,11 +93,13 @@ namespace MimicSpace
         // Update is called once per frame
         void Update()
         {
-            if (!canCreateLeg)
-                return;
+                velocity = transform.forward;
 
-            // New leg origin is placed in front of the mimic
-            legPlacerOrigin = transform.position + velocity.normalized * newLegRadius;
+                if (!canCreateLeg)
+                    return;
+
+                // New leg origin is placed in front of the mimic
+                legPlacerOrigin = transform.position + velocity.normalized * newLegRadius;
 
             if (legCount <= maxLegs - partsPerLeg)
             {
@@ -123,9 +127,22 @@ namespace MimicSpace
                     newLegPosition = transform.position + ((newLegPosition - transform.position) + velocity.normalized * (newLegPosition - transform.position).magnitude) / 2f;
 
                 RaycastHit hit;
-                Physics.Raycast(newLegPosition + Vector3.up * 10f, -Vector3.up, out hit);
+                int mask = ~LayerMask.GetMask("EnemyHitbox");
+
+                Physics.Raycast(
+                    newLegPosition + Vector3.up * 10f,
+                    -Vector3.up,
+                    out hit,
+                    Mathf.Infinity,
+                    mask
+                );
                 Vector3 myHit = hit.point;
-                if (Physics.Linecast(transform.position, hit.point, out hit))
+                if (Physics.Linecast(
+    transform.position,
+    hit.point,
+    out hit,
+    mask
+))
                     myHit = hit.point;
 
                 float lifeTime = Random.Range(minLegLifetime, maxLegLifetime);
